@@ -38,6 +38,7 @@ model Task {
   progressId   Int 
   name         String
   text         String
+  date         DateTime  @default(now())
 }
 
 model Progress {
