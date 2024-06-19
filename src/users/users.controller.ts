@@ -1,8 +1,9 @@
-import { Body, Controller, Get, Post } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Post } from "@nestjs/common";
 import { UserService } from "./users.service";
 import { User } from "@prisma/client";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
+import { DeleteUserDto } from "./dto/delete-user.dto";
 
 @ApiTags('Пользователи')
 @Controller('/users')
@@ -22,6 +23,14 @@ export class UserController {
     @Post()
     async createUser(@Body() dto: CreateUserDto): Promise<User>{
         const user = await this.userService.createUser(dto);
+        return user;
+    }
+
+    @ApiOperation({summary: "Удаление пользователя"})
+    @ApiResponse({status: 200, type: DeleteUserDto})
+    @Delete()
+    async deleteUser(@Body() dto: DeleteUserDto) {
+        const user = await this.userService.deleteUser(dto);
         return user;
     }
 }

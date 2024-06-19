@@ -12,4 +12,10 @@ export class CreateUserDto {
         example: "123456"
     })
     readonly password: string;
+
+    @ApiProperty({
+        description: "User",
+        example: "1"
+    })
+    readonly roleID: number;
 }
