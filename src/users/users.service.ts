@@ -1,8 +1,9 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, UnauthorizedException } from "@nestjs/common";
 import { User } from "@prisma/client";
 import { PrismaService } from "src/prisma/prisma.service";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { DeleteUserDto } from "./dto/delete-user.dto";
+import * as bcrypt from "bcryptjs";
 
 @Injectable()
 export class UserService {
@@ -15,7 +16,7 @@ export class UserService {
                     select: {
                         role: {
                             select: {
-                                role: true, // Здесь должно быть имя поля из модели Role
+                                role: true,
                             },
                         },
                     },
@@ -38,7 +39,8 @@ export class UserService {
 
         const user = await this.prismaService.user.create({
             data: {
-                login, password,
+                login: login, 
+                password: password,
                 userRoles: {
                     create: {
                         role: {
@@ -52,9 +54,14 @@ export class UserService {
     }
 
     async deleteUser(dto: DeleteUserDto): Promise<User> {
-        const { login, password } = dto;
+        const dtoId = await this.prismaService.user.findUnique({where: { login: dto.login}});
+        const equalPassword = await bcrypt.compare(dto.password, dtoId.password);
 
-        const user = await this.prismaService.user.delete({ where: { login, password }})
-        return user;
+        if(dtoId && equalPassword) {
+            await this.prismaService.userRoles.deleteMany({where: {userId: dtoId.id}})
+            const user = await this.prismaService.user.delete({ where: { login: dto.login}})
+            return user;
+        }
+        throw new UnauthorizedException("Неверный пароль");
     }
 }

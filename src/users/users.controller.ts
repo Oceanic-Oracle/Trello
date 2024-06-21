@@ -5,7 +5,7 @@ import { CreateUserDto } from "./dto/create-user.dto";
 import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { DeleteUserDto } from "./dto/delete-user.dto";
 
-@ApiTags('Пользователи')
+@ApiTags('Управление пользователями')
 @Controller('/users')
 export class UserController {
     constructor(private readonly userService: UserService) {}
