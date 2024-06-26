@@ -36,14 +36,24 @@ model Task {
   userId       Int
   progress     Progress  @relation(fields: [progressId], references: [id])
   progressId   Int 
+  order        Int 
   name         String
   text         String
   date         DateTime  @default(now())
 }
 
 model Progress {
-  id     Int      @id @default(autoincrement())
-  name   String
-  number Int
-  task   Task[]
+  id        Int      @id @default(autoincrement())
+  name      String
+  order     Int
+  project   Project  @relation(fields: [projectId], references: [id])
+  projectId Int
+  task      Task[]
+}
+
+model Project {
+  id       Int     @id @default(autoincrement())
+  name     String
+  order    Int
+  progress Progress[]
 }

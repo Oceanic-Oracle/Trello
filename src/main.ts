@@ -10,8 +10,8 @@ async function start() {
     const config = new DocumentBuilder()
         .setTitle('Trello')
         .setDescription('To do list')
-        .setVersion('1.0.0')
         .addTag('Oceanic-Oracle')
+        .addBearerAuth()
         .build();
     const document = SwaggerModule.createDocument(app, config);
     SwaggerModule.setup('/docs', app, document);

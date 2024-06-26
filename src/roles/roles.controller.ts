@@ -8,7 +8,7 @@ import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
 export class RolesController {
     constructor(private readonly rolesService: RolesService) {}
     
-    @ApiOperation({description: 'Получение списка ролей'})
+    @ApiOperation({summary: 'Получение списка ролей'})
     @ApiResponse({status: 200, type: CreateRoleDto})
     @Get()
     async getAllRole() {
@@ -16,7 +16,7 @@ export class RolesController {
         return roles;
     }
 
-    @ApiOperation({description: 'Создание роли'})
+    @ApiOperation({summary: 'Создание роли'})
     @ApiResponse({status: 200, type: CreateRoleDto})
     @Post()
     async createRole(@Body() dto: CreateRoleDto) {

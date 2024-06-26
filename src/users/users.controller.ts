@@ -1,9 +1,12 @@
-import { Body, Controller, Delete, Get, Post } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Post, UseGuards } from "@nestjs/common";
 import { UserService } from "./users.service";
 import { User } from "@prisma/client";
 import { CreateUserDto } from "./dto/create-user.dto";
-import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
+import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { DeleteUserDto } from "./dto/delete-user.dto";
+import { JwtAuthGuard } from "src/auth/jwt-auth.guard";
+import { Roles } from "src/auth/roles-auth.decorator";
+import { RoleAuthGuard } from "src/auth/role.guard";
 
 @ApiTags('Управление пользователями')
 @Controller('/users')
@@ -12,6 +15,9 @@ export class UserController {
 
     @ApiOperation({summary: 'Получение списка пользователей'})
     @ApiResponse({status: 200, type: CreateUserDto})
+    @Roles('ADMIN')
+    @ApiBearerAuth()
+    @UseGuards(JwtAuthGuard, RoleAuthGuard)
     @Get()
     async getAllUsers(): Promise<User[]>{
         const users = await this.userService.getUsers();
