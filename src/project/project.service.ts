@@ -1,6 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import { PrismaService } from "src/prisma/prisma.service";
+import { CreateProjectDto } from "./dto/get-project.dto";
 
 @Injectable()
 export class ProjectService {
@@ -11,16 +12,8 @@ export class ProjectService {
     async getProjects(req) {
         const userId = await this.tokenUserId(req);
         const projects = await this.prismaService.project.findMany({
-            include: {
-                progress: {
-                    include: {
-                        task: {
-                            where: {
-                                userId: userId
-                            }
-                        }
-                    }
-                }
+            where: {
+                userId: userId
             }
         });
         return projects;
@@ -28,46 +21,53 @@ export class ProjectService {
 
     async getProject(req, projectId: number) {
         const userId = await this.tokenUserId(req);
-        const project = await this.prismaService.project.findFirst({
-            where: {id: projectId},
-            include: {
-                progress: {
-                    include: {
-                        task: {
-                            where: {
-                                userId: userId
-                            }
-                        }
-                    }
-                }
+        const project = await this.prismaService.project.findMany({
+            where: {
+                id: projectId,
+                userId: userId
             }
         })
         return project;
     }
 
-    async createProject(req) {
-        //TODO
+    async createProject(req, dto: CreateProjectDto) {
+        const userId = await this.tokenUserId(req);
+        const project = await this.prismaService.project.create({
+            data: {
+                name: dto.name,
+                userId: userId
+            }
+        })
+        return project;
     }
     
     async deleteProject(req, projectId: number) {
         const userId = await this.tokenUserId(req);
-        const project = await this.prismaService.project.delete({
-            where: {id: projectId},
-            include: {
+        await this.prismaService.task.deleteMany({
+            where: {
                 progress: {
-                    include: {
-                        task: {
-                            where: { userId: userId}
-                        }
-                    }
+                    projectId: projectId,
+                    userId: userId
                 }
+            }
+        });
+        await this.prismaService.progress.deleteMany({
+            where: {
+                projectId: projectId,
+                userId: userId
+            }
+        });
+        const project = await this.prismaService.project.delete({
+            where: {
+                id: projectId, 
+                userId: userId
             }
         })
         return project;
     }
 
     private async tokenUserId(req) {
-        const token = await req.headers.authorization.split[1];
+        const token = await req.headers.authorization.split(' ')[1];
         const user = await this.jwtService.verify(token);
         return user.id;
     }

@@ -1,15 +1,9 @@
 import { ApiProperty } from "@nestjs/swagger";
 
-export class GetProjectDto {
+export class CreateProjectDto {
     @ApiProperty({
         description: "Name",
         example: "Trello"
     })
     readonly name: string;
-
-    @ApiProperty({
-        description: "Order",
-        example: "1"
-    })
-    readonly order: number;
 }

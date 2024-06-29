@@ -1,7 +1,8 @@
-import { Controller, Delete, Get, Param, Post, Request} from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Post, Request, UseGuards} from "@nestjs/common";
 import { ProjectService } from "./project.service";
-import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
-import { GetProjectDto } from "./dto/get-project.dto";
+import { ApiBearerAuth, ApiOperation, ApiParam, ApiResponse, ApiTags } from "@nestjs/swagger";
+import { CreateProjectDto} from "./dto/get-project.dto";
+import { JwtAuthGuard } from "src/auth/jwt-auth.guard";
 
 @ApiTags('Проекты')
 @Controller('/project')
@@ -11,6 +12,7 @@ export class ProjectController {
     @ApiOperation({summary: "Получение списка проектов"})
     @ApiResponse({status: 200})
     @ApiBearerAuth()
+    @UseGuards(JwtAuthGuard)
     @Get()
     async getProjects(@Request() req) {
         const projects = await this.projectService.getProjects(req);
@@ -18,29 +20,34 @@ export class ProjectController {
     }
 
     @ApiOperation({summary: "Получение проекта"})
-    @ApiResponse({status: 200, type: GetProjectDto})
+    @ApiResponse({status: 200})
+    @ApiParam({ name: 'projectId', description: 'Project ID', required: true, type: Number })
     @ApiBearerAuth()
+    @UseGuards(JwtAuthGuard)
     @Get('/:projectId')
-    async getProject(@Request() req, @Param() projectId: number) {
-        const project = await this.projectService.getProject(req, projectId);
+    async getProject(@Request() req, @Param('projectId') projectId: number) {
+        const project = await this.projectService.getProject(req, Number(projectId));
         return project;
     }
 
     @ApiOperation({summary: "Создание проекта"})
-    @ApiResponse({status: 200})
+    @ApiResponse({status: 200, type: CreateProjectDto})
     @ApiBearerAuth()
+    @UseGuards(JwtAuthGuard)
     @Post()
-    async createProject(@Request() req) {
-        const project = await this.projectService.createProject(req);
+    async createProject(@Request() req, @Body() dto: CreateProjectDto) {
+        const project = await this.projectService.createProject(req, dto);
         return project;
     }
 
     @ApiOperation({summary: "Удаление проекта"})
     @ApiResponse({status: 200})
+    @ApiParam({ name: 'projectId', description: 'Project ID', required: true, type: Number })
     @ApiBearerAuth()
-    @Delete('/projectId')
-    async deleteProject(@Request() req, @Param() projectId: number) {
-        const project = await this.projectService.deleteProject(req, projectId);
+    @UseGuards(JwtAuthGuard)
+    @Delete('/:projectId')
+    async deleteProject(@Request() req, @Param('projectId') projectId: number) {
+        const project = await this.projectService.deleteProject(req, Number(projectId));
         return project;
     }
 }

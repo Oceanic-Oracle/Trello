@@ -1,27 +1,57 @@
-import { Controller, Delete, Get, Post } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Post, Put, Request, UseGuards } from "@nestjs/common";
 import { ProgressService } from "./progress.service";
-import { ApiTags } from "@nestjs/swagger";
+import { ApiBearerAuth, ApiOperation, ApiParam, ApiResponse, ApiTags } from "@nestjs/swagger";
+import { JwtAuthGuard } from "src/auth/jwt-auth.guard";
+import { CreateProjectDto } from "../dto/get-project.dto";
+import { SwapProgressesDto } from "./dto/swap-progresses.dto";
 
 @ApiTags('Прогресс')
 @Controller('/project/:projectId/progress') 
 export class ProgressController {
     constructor(private readonly progressService: ProgressService) {}
 
+    @ApiOperation({summary: "Получение столбцов"})
+    @ApiResponse({status: 200})
+    @ApiParam({ name: 'projectId', description: 'Project ID', required: true, type: Number })
+    @ApiBearerAuth()
+    @UseGuards(JwtAuthGuard)
     @Get()
-    getProgresses() {
-        const progresses = this.progressService.getProgresses();
+    async getProgresses(@Request() req, @Param('projectId') projectId) {
+        const progresses = await this.progressService.getProgresses(req, Number(projectId));
         return progresses;
     }
 
+    @ApiOperation({summary: "Создание столбца"})
+    @ApiResponse({status: 200})
+    @ApiParam({ name: 'projectId', description: 'Project ID', required: false, type: Number })
+    @ApiBearerAuth()
+    @UseGuards(JwtAuthGuard)
     @Post()
-    createProgress() {
-        const progress = this.progressService.createProgress();
+    async createProgress(@Request() req: any, @Param('projectId') projectId, @Body() dto: CreateProjectDto) {
+        const progress = await this.progressService.createProgress(req, Number(projectId), dto);
         return progress;
     }
 
-    @Delete()
-    deleteProgress() {
-        const progress = this.progressService.deleteProgress();
+    @ApiOperation({summary: "Поменять местами столбцы"})
+    @ApiResponse({status: 200})
+    @ApiParam({ name: 'projectId', description: 'Project ID', required: false, type: Number })
+    @ApiBearerAuth()
+    @UseGuards(JwtAuthGuard)
+    @Put()
+    async swapId(@Request() req: any, @Body() dto: SwapProgressesDto) {
+        const progress = await this.progressService.swapId(req, dto);
+        return progress;
+    }
+
+    @ApiOperation({summary: "Удаление столбца"})
+    @ApiResponse({status: 200})
+    @ApiParam({ name: 'projectId', description: 'Project ID', required: false, type: Number })
+    @ApiParam({ name: 'progressId', description: 'Progress ID', required: true, type: Number })
+    @ApiBearerAuth()
+    @UseGuards(JwtAuthGuard)
+    @Delete('/:progressId')
+    async deleteProgress(@Request() req: any, @Param('projectId') projectId: number, @Param('progressId') progressId: number) {
+        const progress = await this.progressService.deleteProgress(req, Number(projectId), Number(progressId));
         return progress;
     }
 }

@@ -14,7 +14,7 @@ import { JwtModule } from "@nestjs/jwt";
         JwtModule.register({ 
             secret: process.env.JWT_KEY || 'JWT_secret_key',
             signOptions: { expiresIn: '24h'}
-        }),
+        })
     ],
     controllers: [ProjectController, ProgressController, TaskController],
     providers: [ProjectService, ProgressService, TaskService]

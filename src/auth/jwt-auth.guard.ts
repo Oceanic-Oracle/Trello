@@ -23,6 +23,7 @@ export class JwtAuthGuard implements CanActivate {
             req.user = user;
             return true;
         } catch (e) {
+            console.error('JwtAuthGuard error:', e);
             if (e instanceof UnauthorizedException) {
                 throw e;
             }
