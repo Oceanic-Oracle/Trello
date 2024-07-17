@@ -1,4 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
+import { IsString } from "class-validator";
 
 
 export class CreateRoleDto {
@@ -6,5 +7,6 @@ export class CreateRoleDto {
         description: "Role",
         example: "Admin"
     })
+    @IsString({message: "Должно быть строкой"})
     readonly role: string
 }
