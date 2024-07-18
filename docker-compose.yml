@@ -11,24 +11,33 @@ services:
       - .:/app
       - /app/node_modules
     ports:
-      - 5000:5000
+      - 7000:7000
       - 9229:9229
     command: npm run start:dev
     depends_on:
       - postgres
+    networks:
+      - my_network
     restart: always
+
   postgres:
     container_name: postgres
     image: postgres:12
     env_file:
       - .env
     environment:
-      PG_DATA: /var/lib/postgresql/data
+      PGDATA: /var/lib/postgresql/data
     ports:
       - 5432:5432
     volumes:
       - pgdata:/var/lib/postgresql/data
+    networks:
+      - my_network
     restart: always
 
 volumes:
   pgdata:
+
+networks:
+  my_network:
+    external: true
